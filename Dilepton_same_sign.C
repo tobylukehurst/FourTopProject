@@ -1,5 +1,12 @@
+/*
+This code produces histogras for the dilepton channel.
+The tree uploaded can be changed and corrsponfs to different 'Events' files.
+The pre-selection criteria ans can changed.
+To run upload to root, create an Events object (e.g. type 'Events t'), the loop over the object (type t.Loop() ).
+*/
+
 #define Events_cxx
-#include "Events.h"  
+#include "Events.h"   //'Events' file can be chnaged here  
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -70,7 +77,7 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
         Long64_t Muon_number =0;
 	float Discrim[40] ={};
 	Long64_t repeat =0; 
-
+				//isloated lepton requirments 
 
 		for (Long64_t Jet =0;Jet<nJet;++Jet) {
 			if (Jet_nElectrons[Jet] > 0) {
@@ -146,7 +153,9 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 			}
 		}
 
-
+		//Different combonation of leptons, postitve, negative, leading, subleading, muon and electron   
+	        // plus their eta, pi and momentum as well as a possible third lepton are all considered 
+	        // as outlined in report
 		Long64_t Pos_Lead_Elec = 0;
 		Long64_t Neg_Lead_Elec = 0;
 		Long64_t Pos_Sub_Elec = 0;
@@ -312,7 +321,7 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 			
 
 
-
+		//Set invarient mass
 
 		
 		if (Di_elec != -10 && second_elec != -10) Invariant_mass = sqrt(2*Electron_pt[Di_elec]*Electron_pt[second_elec]*(cosh(Electron_eta[Di_elec]-Electron_eta[second_elec]) - 

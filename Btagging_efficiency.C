@@ -1,5 +1,11 @@
+/*
+This code produces a graph of efficencies of b-tagging algorithms.
+The tree uploaded can be changed and corrsponfs to different 'Events' files.
+To run upload to root, create an Events object (e.g. type 'Events t'), the loop over the object (type t.Loop() ).
+*/
+
 #define Events_cxx
-#include "Events.h"
+#include "Events.h"  //Can change 'Events' file here
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -7,8 +13,7 @@
 #include <cmath>
 
 
-////TEST TEST TEST TEST
-
+//Toy Monte Carlo method for errors 
 float Error_plus (float TotalJets,float B)
 {
 Int_t NewB =0;
@@ -99,6 +104,7 @@ float x_er_DeepFlavB[101] = {};
 float y_er_DeepFlavB[101] = {};
 float Discrim[101] = {};
 float Id[8363] ={};
+//Set up range of discriminators for each algorithm 
 for (Long64_t j=0;j<n;++j){
       x_CMVA[j] = 1 - j*0.02;
       x_DeepB[j] = 1 - j*0.01;
@@ -107,6 +113,7 @@ for (Long64_t j=0;j<n;++j){
       x_DeepC[j] = 1 - j*0.01;
       x_DeepFlavB[j] = 1 - j*0.01;
 }
+	//Jet matching 
    Int_t counter = 0;
    Int_t N = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) { 
@@ -157,16 +164,16 @@ Id[counter]=3;
 else 
 Id[counter]=0;
 }
-//MyHist->Draw(); 
-      // cout << "Event Number" << jentry << endl;
-      N =N+ nJet;
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);  nbytes += nb;
-      // if (Cut(ientry) < 0) continue;  
+
+N =N+ nJet;
+if (ientry < 0) break;
+nb = fChain->GetEntry(jentry);  nbytes += nb;
+
   }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//Identify number of each type of jet in event for each alogortihm 
+	
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
@@ -189,7 +196,7 @@ for(Int_t xval=0;xval<n;++xval){
 
 
 
-
+	//Line below used to calcualte efficencies 
 	//cout<<"BJets: "<<Btag_Num<<"     CJets: "<<Ctag_Num<<"     LJets: "<<Ltag_Num<<"      Discrim: "<<x_DeepB[xval]<<"    Total: "<<counter<<endl;
         y_DeepB[xval] = (Ctag_Num+Ltag_Num);
         x_DeepB[xval]=Btag_Num;
@@ -220,13 +227,13 @@ for(Int_t xval=0;xval<n;++xval){
                 }
 
         }
-	//cout<<"BJets: "<<Btag_Num<<"     CJets: "<<Ctag_Num<<"     LJets: "<<Ltag_Num<<"      Discrim: "<<x_CMVA[xval]<<"    Total: "<<counter<<endl;
+	
         y_CMVA[xval] = (Ctag_Num+Ltag_Num);
         x_CMVA[xval]=Btag_Num;
         x_er_CMVA[xval] = Error_plus(counter, Btag_Num);
         y_er_CMVA[xval] = Error_plus(counter, (Ctag_Num + Ltag_Num));   
 
-  // cout<<"B Jets: "<<Btag_Num<<"   "<<"C Jets: "<<Ctag_Num<<"      "<<"L Jets: "<<Ltag_Num<<"      "<<"Total: "<<counter<<"        CMVA"<<endl;
+  
 
 }
 
@@ -246,7 +253,7 @@ for(Int_t xval=0;xval<n;++xval){
            else{ counter=counter;
                  Btag_Num = Btag_Num;
                  Ctag_Num = Ctag_Num; 
-                 Ltag_Num = Ltag_Num;////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                 Ltag_Num = Ltag_Num;
                 }
 
         }
@@ -256,7 +263,7 @@ for(Int_t xval=0;xval<n;++xval){
         x_er_CSVV2[xval] = Error_plus(counter, Btag_Num);
         y_er_CSVV2[xval] = Error_plus(counter, (Ctag_Num + Ltag_Num));     
 
-    //    cout<<"B Jets: "<<Btag_Num<<"	"<<"C Jets: "<<Ctag_Num<<"	"<<"L Jets: "<<Ltag_Num<<"	"<<"Total: "<<counter<<"	CSVV2"<<endl;
+    
 }
 
 
@@ -279,13 +286,13 @@ for(Int_t xval=0;xval<n;++xval){
                 }
                  
         }        
-        //cout<<"btag num: "<<Btag_Num<<" "<<"ctag num: "<<Ctag_Num<<"    "<<"ltag num: "<<Ltag_Num<<endl;
+     
         y_DeepC[xval] = (Ctag_Num+Ltag_Num);
         x_DeepC[xval]=Btag_Num;
         x_er_DeepC[xval] = Error_plus(counter, Btag_Num);
         y_er_DeepC[xval] = Error_plus(counter, (Ctag_Num + Ltag_Num));     
 
-  // cout<<"B Jets: "<<Btag_Num<<"   "<<"C Jets: "<<Ctag_Num<<"      "<<"L Jets: "<<Ltag_Num<<"      "<<"Total: "<<counter<<"        DeepC"<<endl;
+ 
 
 }
 
@@ -308,13 +315,12 @@ for(Int_t xval=0;xval<n;++xval){
                 }
                  
         }        
-        //cout<<"btag num: "<<Btag_Num<<" "<<"ctag num: "<<Ctag_Num<<"    "<<"ltag num: "<<Ltag_Num<<endl;
-        y_DeepFlavB[xval] = (Ctag_Num+Ltag_Num);
+       
+	y_DeepFlavB[xval] = (Ctag_Num+Ltag_Num);
         x_DeepFlavB[xval]=Btag_Num;
         x_er_DeepFlavB[xval] = Error_plus(counter, Btag_Num);
         y_er_DeepFlavB[xval] = Error_plus(counter, (Ctag_Num + Ltag_Num));     
 
-//cout<<"B Jets: "<<Btag_Num<<"   "<<"C Jets: "<<Ctag_Num<<"      "<<"L Jets: "<<Ltag_Num<<"      "<<"Total: "<<counter<<"        DeepFlavB"<<endl;
 
 }
 
@@ -325,7 +331,7 @@ for(Int_t xval=0;xval<n;++xval){
 
 
 
-
+//normalise data and Errors 
 
 for (Int_t i=0;i<n;++i){
     x_er_CMVA[i] =x_er_CMVA[i]/x_CMVA[n-1];
@@ -334,21 +340,14 @@ for (Int_t i=0;i<n;++i){
     float Norm_y_CMVA= y_CMVA[n-1];
     x_CMVA[i]=x_CMVA[i]/x_CMVA[n-1];
     y_CMVA[i]=y_CMVA[i]/y_CMVA[n-1];
-    //x_er_CMVA[i] = sqrt((x_CMVA[i]*(1-x_CMVA[i]))/Norm_x_CMVA);                             
-    //y_er_CMVA[i] = sqrt((y_CMVA[i]*(1-y_CMVA[i]))/Norm_y_CMVA);
-
-     //if (y_CSVV2[i] <= 485){
-       // cout<<"Miss Identification rate: "<< y_CSVV2[i]<<"      "<<"Discrim Value: "<<Discrim[i]<<endl;
-   // }
-//  cout<<"X Error: "<<x_er_CMVA[i]<<"          "<<"Y Error: "<<y_er_CMVA[i]<<endl;}
+   
     x_er_CSVV2[i] =x_er_CSVV2[i]/x_CSVV2[n-1];
     y_er_CSVV2[i] =y_er_CSVV2[i]/y_CSVV2[n-1];
     float Norm_x_CSVV2= x_CSVV2[n-1];
     float Norm_y_CSVV2= y_CSVV2[n-1];
     x_CSVV2[i]=x_CSVV2[i]/x_CSVV2[n-1]; 
     y_CSVV2[i]=y_CSVV2[i]/y_CSVV2[n-1];
-    //x_er_CSVV2[i] = sqrt((x_CSVV2[i]*(1-x_CSVV2[i]))/Norm_x_CSVV2);
-    //y_er_CSVV2[i] = sqrt((y_CSVV2[i]*(1-y_CSVV2[i]))/Norm_y_CSVV2);    
+ 
 
     x_er_DeepB[i] =x_er_DeepB[i]/x_DeepB[n-1];
     y_er_DeepB[i] =y_er_DeepB[i]/y_DeepB[n-1];
@@ -356,20 +355,13 @@ for (Int_t i=0;i<n;++i){
     float Norm_y_DeepB=DeepB[i] = y_DeepB[n-1];
     x_DeepB[i]=x_DeepB[i]/x_DeepB[n-1];
     y_DeepB[i]=y_DeepB[i]/y_DeepB[n-1];
-    //x_er_DeepB[i] = sqrt((x_DeepB[i]*(1-x_DeepB[i]))/Norm_x_DeepB);
-    //y_er_DeepB[i] = sqrt((y_DeepB[i]*(1-y_DeepB[i]))/Norm_y_DeepB);
-//    cout<<"x Error: "<<x_er_DeepB[i]<<"    y Error: "<<y_er_DeepB[i]<<"x Efficiency"<<x_DeepB[i]<<"  y Efficiency"<< y_DeepB[i]<< "    Norm x"<<Norm_x<<"    Norm y"<<Norm_y <<endl;
-
+    
     x_er_DeepC[i] =x_er_DeepC[i]/x_DeepC[n-1];
     y_er_DeepC[i] =y_er_DeepC[i]/y_DeepC[n-1];
     float Norm_x_DeepC= x_DeepC[n-1];
     float Norm_y_DeepC= y_DeepC[n-1];
     x_DeepC[i]=x_DeepC[i]/x_DeepC[n-1];
     y_DeepC[i]=y_DeepC[i]/y_DeepC[n-1];
-    //x_er_DeepC[i] = sqrt((x_DeepC[i]*(1-x_DeepC[i]))/Norm_x_DeepC);
-    //y_er_DeepC[i] = sqrt((y_DeepC[i]*(1-y_DeepC[i]))/Norm_y_DeepC);
-
-//    cout<<"x: "<<x_DeepC[i]<<"      y: "<<y_DeepC[i]<<endl;
    
     x_er_DeepFlavB[i] =x_er_DeepFlavB[i]/x_DeepFlavB[n-1];
     y_er_DeepFlavB[i] =y_er_DeepFlavB[i]/y_DeepFlavB[n-1];
@@ -377,16 +369,12 @@ for (Int_t i=0;i<n;++i){
     float Norm_y_DeepFlavB= y_DeepFlavB[n-1];
     x_DeepFlavB[i]=x_DeepFlavB[i]/x_DeepFlavB[n-1];
     y_DeepFlavB[i]=y_DeepFlavB[i]/y_DeepFlavB[n-1];
-    //x_er_DeepFlavB[i] = sqrt((x_DeepFlavB[i]*(1-x_DeepFlavB[i]))/Norm_x_DeepFlavB);
-    //y_er_DeepFlavB[i] = sqrt((y_DeepFlavB[i]*(1-y_DeepFlavB[i]))/Norm_y_DeepFlavB);
+   
 
 }
 
-for (Long64_t k =0;k<101;++k) {
-	float t = y_CMVA[k];
-//	cout<<t<<endl;
-}
 
+//Plotting graphs 
 c1->DrawFrame(0,0.001,1,1,"; B_tag Efficiency; Fake rate");
 TGraph *gr= new TGraphErrors(n,x_CMVA,y_CMVA,x_er_CMVA,y_er_CMVA);
 gr->SetLineColorAlpha(kBlue, 0.6);
@@ -404,13 +392,6 @@ TGraph *gr4= new TGraphErrors(n,x_DeepFlavB,y_DeepFlavB,x_er_DeepFlavB,y_er_Deep
 gr4->SetLineColorAlpha(kRed, 0.6);
 gPad->SetLogy();
 gPad->SetGrid();
-//gr->SetLineWidth(2);
-//gr1->SetLineWidth(2);
-//gr2->SetLineWidth(2);
-//gr3->SetLineWidth(2);
-//gr4->SetLineWidth(2);
-
-//gr2->SetTitle("Title; x axis; y axis");
 
 
 TLegend *legend = new TLegend(0.1,0.65,0.25,0.95);

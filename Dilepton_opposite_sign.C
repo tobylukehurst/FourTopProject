@@ -5,7 +5,7 @@ The pre-selection criteria ans can changed.
 To run upload to root, create an Events object (e.g. type 'Events t'), the loop over the object (type t.Loop() ).
 */
 #define Events_cxx
-#include "Events.h"   //Change the 'Events'  file here 
+#include "Events.h"   //Change the 'Events' file here which encodes the tree infomation obtained via make class function (i.e. Events->MakeClass()' ) 
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -13,7 +13,7 @@ To run upload to root, create an Events object (e.g. type 'Events t'), the loop 
 #include <cmath>
 void Events::Loop()
 {
-TH1F *myHisto  = new TH1F("myHisto","4 top Number of Jets, Single muon channel, bjets>=2, H_t>500, p>=7 with pt>30 and |eta|<2.5, pt_miss>50",6,2,8);  //title and size of object 
+TH1F *myHisto  = new TH1F("myHisto","Title of Histogram",6,2,8);  //title and size of object 
 float NN[101]={};
 Long64_t n = 101; 
 float x[101] = {};
@@ -263,7 +263,7 @@ c1->SetLogy();
 myHisto->Draw();
 
 //Saves graph into directory, overwrites if there is a graph with the same name 
-TFile myGraphFile("4_OP_DiLep_Btag_Paper_Discrim_Tight.root", "RECREATE");
+TFile myGraphFile("Name_of_file.root", "RECREATE");
 myGraphFile.cd();
 myHisto->Write();
 myGraphFile.Close();

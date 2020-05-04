@@ -5,7 +5,7 @@ To run upload to root, create an Events object (e.g. type 'Events t'), the loop 
 */
 
 #define Events_cxx
-#include "Events.h"  //Can change 'Events' file here
+#include "Events.h"  //Change the 'Events' file here which encodes the tree infomation obtained via make class function (i.e. Events->MakeClass()' ) 
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -29,7 +29,6 @@ for (Long64_t inc=1;inc<1000;++inc){
 	float NumberofB[1000]={}; 
    	for (int i=0; i<1000; ++i){
         	NumberofB[i]= distribution(generator);
-         	//cout<<D<<"   ";
 		if (NumberofB[i]>B) D=D+1;}
         if (D/1000 >= (n/m)){
                 NewB=B+inc;
@@ -56,7 +55,6 @@ for (Long64_t inc=1;inc<1000;++inc){
         float NumberofB[1000]={};
         for (int i=0; i<1000; ++i){
                 NumberofB[i]= distribution(generator);
-               // cout<<D<<"   ";
                 if (NumberofB[i]>B) D=D+1;}
         if (D/1000 <= (n/m)){
                 newB=B-inc;
@@ -77,6 +75,7 @@ if (fChain == 0) return;
 TCanvas *c1 = new TCanvas("c1","title",200,10,500,300);
    Long64_t nbytes = 0, nb = 0;
 Long64_t n = 101; 
+//establish arrays used for x, y and erros 
 float x_CMVA[101] = {};
 float x_CSVV2[101] = {};
 float x_DeepB[101] = {};
@@ -104,7 +103,7 @@ float x_er_DeepFlavB[101] = {};
 float y_er_DeepFlavB[101] = {};
 float Discrim[101] = {};
 float Id[8363] ={};
-//Set up range of discriminators for each algorithm 
+//Set up range of discriminators for each algorithm along the x value  
 for (Long64_t j=0;j<n;++j){
       x_CMVA[j] = 1 - j*0.02;
       x_DeepB[j] = 1 - j*0.01;
@@ -129,10 +128,11 @@ for (Long64_t j=0;j<n;++j){
 	DeepC[counter] = Jet_btagDeepC[NumJet];
 	DeepFlavB[counter] = Jet_btagDeepFlavB[NumJet];
 	for (Long64_t NumPart = 0;NumPart<nGenPart;++NumPart){
+		//identify all b particles  
 	if ((abs(GenPart_pdgId[NumPart])>4999 && abs(GenPart_pdgId[NumPart]) <6000) or (abs(GenPart_pdgId[NumPart])>499 && 
 		abs(GenPart_pdgId[NumPart])<600) or (abs(GenPart_pdgId[NumPart])>10499 && abs(GenPart_pdgId[NumPart])<10600) or (abs(GenPart_pdgId[NumPart])==5) or
 		 (abs(GenPart_pdgId[NumPart])>49 && abs(GenPart_pdgId[NumPart])<60) ){
-		float deltaphi = Jet_phi[NumJet]-GenPart_phi[NumPart];
+		float deltaphi = Jet_phi[NumJet]-GenPart_phi[NumPart]; //match b particle to to jet 
 		if (abs(deltaphi)>= M_PI) deltaphi = 2*M_PI - abs(deltaphi);
 		float deltaeta = Jet_eta[NumJet]-GenPart_eta[NumPart];
 		float deltaR = sqrt(deltaphi * deltaphi + deltaeta * deltaeta); 
@@ -140,6 +140,7 @@ for (Long64_t j=0;j<n;++j){
         	Btag = Btag+1;
 		}
         }
+		//same process with c-particles 
 	else if ((abs(GenPart_pdgId[NumPart])>3999 && abs(GenPart_pdgId[NumPart]) <5000) or (abs(GenPart_pdgId[NumPart])>399 && 
 		abs(GenPart_pdgId[NumPart])<500) or (abs(GenPart_pdgId[NumPart])>10399 && abs(GenPart_pdgId[NumPart])<10500) or (abs(GenPart_pdgId[NumPart])==4) or 
 		(abs(GenPart_pdgId[NumPart])>39 && abs(GenPart_pdgId[NumPart])<50) ){
@@ -156,7 +157,7 @@ for (Long64_t j=0;j<n;++j){
 
 }
 if (Btag>0)
-Id[counter]=5;
+Id[counter]=5; //Id array etablishes identity of all jets, used for error checking
 else if (Btag==0 && Ctag>0)
 Id[counter]=4; 
 else if (Btag==0 && Ctag==0 && Ltag>0)
@@ -173,13 +174,13 @@ nb = fChain->GetEntry(jentry);  nbytes += nb;
 
 
 //Identify number of each type of jet in event for each alogortihm 
-	
+//DeepB	
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
 	float Ctag_Num = 0;
 	float Ltag_Num= 0;
-        for (Int_t yval=0;yval<N;++yval){
+        for (Int_t yval=0;yval<N;++yval){  //Identify the number of each type of jet identified at each discriminator
            if (DeepB[yval]>x_DeepB[xval]){
             counter=counter+1;
 	    if (Id[yval] == 5) Btag_Num = Btag_Num +1;
@@ -198,16 +199,16 @@ for(Int_t xval=0;xval<n;++xval){
 
 	//Line below used to calcualte efficencies 
 	//cout<<"BJets: "<<Btag_Num<<"     CJets: "<<Ctag_Num<<"     LJets: "<<Ltag_Num<<"      Discrim: "<<x_DeepB[xval]<<"    Total: "<<counter<<endl;
-        y_DeepB[xval] = (Ctag_Num+Ltag_Num);
-        x_DeepB[xval]=Btag_Num;
-        x_er_DeepB[xval] =Error_plus(counter, Btag_Num);
+        y_DeepB[xval] = (Ctag_Num+Ltag_Num);  //Number of misidentified jets 
+        x_DeepB[xval]=Btag_Num;               //Number of tagged b-jets 
+        x_er_DeepB[xval] =Error_plus(counter, Btag_Num);  //Errors in x and y 
         y_er_DeepB[xval] =Error_plus(counter, (Ctag_Num + Ltag_Num));
  
 
 
 
 }       
-
+//CMVA
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
@@ -237,7 +238,7 @@ for(Int_t xval=0;xval<n;++xval){
 
 }
 
-
+//CSVV2
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
@@ -257,7 +258,7 @@ for(Int_t xval=0;xval<n;++xval){
                 }
 
         }
-	cout<<"BJets: "<<Btag_Num<<"     CJets: "<<Ctag_Num<<"     LJets: "<<Ltag_Num<<"      Discrim: "<<x_CSVV2[xval]<<"    Total: "<<counter<<endl;
+	
         y_CSVV2[xval] = (Ctag_Num+Ltag_Num);
         x_CSVV2[xval]=Btag_Num;
         x_er_CSVV2[xval] = Error_plus(counter, Btag_Num);
@@ -266,7 +267,7 @@ for(Int_t xval=0;xval<n;++xval){
     
 }
 
-
+//DeepC
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
@@ -295,7 +296,7 @@ for(Int_t xval=0;xval<n;++xval){
  
 
 }
-
+//DeepFlavB
 for(Int_t xval=0;xval<n;++xval){
         float counter = 0;
         float Btag_Num = 0;
@@ -336,37 +337,27 @@ for(Int_t xval=0;xval<n;++xval){
 for (Int_t i=0;i<n;++i){
     x_er_CMVA[i] =x_er_CMVA[i]/x_CMVA[n-1];
     y_er_CMVA[i] =y_er_CMVA[i]/y_CMVA[n-1] ;
-    float Norm_x_CMVA= x_CMVA[n-1];
-    float Norm_y_CMVA= y_CMVA[n-1];
     x_CMVA[i]=x_CMVA[i]/x_CMVA[n-1];
     y_CMVA[i]=y_CMVA[i]/y_CMVA[n-1];
    
     x_er_CSVV2[i] =x_er_CSVV2[i]/x_CSVV2[n-1];
     y_er_CSVV2[i] =y_er_CSVV2[i]/y_CSVV2[n-1];
-    float Norm_x_CSVV2= x_CSVV2[n-1];
-    float Norm_y_CSVV2= y_CSVV2[n-1];
     x_CSVV2[i]=x_CSVV2[i]/x_CSVV2[n-1]; 
     y_CSVV2[i]=y_CSVV2[i]/y_CSVV2[n-1];
  
 
     x_er_DeepB[i] =x_er_DeepB[i]/x_DeepB[n-1];
     y_er_DeepB[i] =y_er_DeepB[i]/y_DeepB[n-1];
-    float Norm_x_DeepB=DeepB[i] = x_DeepB[n-1];
-    float Norm_y_DeepB=DeepB[i] = y_DeepB[n-1];
     x_DeepB[i]=x_DeepB[i]/x_DeepB[n-1];
     y_DeepB[i]=y_DeepB[i]/y_DeepB[n-1];
     
     x_er_DeepC[i] =x_er_DeepC[i]/x_DeepC[n-1];
     y_er_DeepC[i] =y_er_DeepC[i]/y_DeepC[n-1];
-    float Norm_x_DeepC= x_DeepC[n-1];
-    float Norm_y_DeepC= y_DeepC[n-1];
     x_DeepC[i]=x_DeepC[i]/x_DeepC[n-1];
     y_DeepC[i]=y_DeepC[i]/y_DeepC[n-1];
    
     x_er_DeepFlavB[i] =x_er_DeepFlavB[i]/x_DeepFlavB[n-1];
     y_er_DeepFlavB[i] =y_er_DeepFlavB[i]/y_DeepFlavB[n-1];
-    float Norm_x_DeepFlavB= x_DeepFlavB[n-1];
-    float Norm_y_DeepFlavB= y_DeepFlavB[n-1];
     x_DeepFlavB[i]=x_DeepFlavB[i]/x_DeepFlavB[n-1];
     y_DeepFlavB[i]=y_DeepFlavB[i]/y_DeepFlavB[n-1];
    

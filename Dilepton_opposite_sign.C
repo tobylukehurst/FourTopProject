@@ -1,5 +1,5 @@
 /*
-This code produces histogras for the dilepton channel.
+This code produces histogras for the opposite sign dilepton channel.
 The tree uploaded can be changed and corrsponfs to different 'Events' files.
 The pre-selection criteria ans can changed.
 To run upload to root, create an Events object (e.g. type 'Events t'), the loop over the object (type t.Loop() ).
@@ -21,16 +21,16 @@ if (fChain == 0) return;
 Long64_t nentries = fChain->GetEntriesFast();
 Long64_t nbytes=0,nb=0;
 		
-float y_DeepFlavB[101] = {};
-float x_erDeepFlavB[101]={};
-float y_erDeepFlavB[101]={};
-float Btag[960869] = {};
-float Btag2[960869] = {};
+
+float Btag[960869] = {}; //Set up b-tagging array 
+
 
 Int_t counter = 0;
 Long64_t N = 0;
-for (Long64_t jentry=0; jentry<nentries;jentry++) {
+//loop over all events 
+for (Long64_t jentry=0; jentry<nentries;jentry++) { 
 	Long64_t ientry = LoadTree(jentry);
+	//define and initialise parameters for each event 
 	Long64_t elec =0;
 	Long64_t muon = 0;
 	Long64_t u = 0;
@@ -74,30 +74,31 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 	Long64_t repeat =0; 
 
 
-		for (Long64_t Jet =0;Jet<nJet;++Jet) {
+		for (Long64_t Jet =0;Jet<nJet;++Jet) { //loop over jets
 			if (Jet_nElectrons[Jet] > 0) {                 //Identification of isolated leptons
 				float I_rel = 0;                       //Electron conditions 
                                 float pT = 0;   
-				for (Long64_t i=0;i<Jet_nElectrons[Jet];++i) {
+				for (Long64_t i=0;i<Jet_nElectrons[Jet];++i) {  //loop over each lepton 
 						for (Long64_t NumPart = 0;NumPart<nGenPart;++NumPart){
-                					float deltaphi = Jet_phi[Jet]-GenPart_phi[NumPart];
+                					float deltaphi = Jet_phi[Jet]-GenPart_phi[NumPart]; //Calculate delta_R to match each particle to jet to jet 
                						if (abs(deltaphi)>= M_PI) deltaphi = 2*M_PI - abs(deltaphi);
                 					float deltaeta = Jet_eta[Jet]-GenPart_eta[NumPart];
                 					float deltaR = sqrt(deltaphi * deltaphi + deltaeta * deltaeta);
-                					if (deltaR<0.4){
+                					if (deltaR<0.4){ //if paticle in that jet, does it correpsond to this electron
                 						deltaphi = Electron_phi[Electron_number]-GenPart_phi[NumPart];
 								if (abs(deltaphi)>= M_PI) deltaphi = 2*M_PI - abs(deltaphi);
                                         	                deltaeta = Electron_eta[Electron_number]-GenPart_eta[NumPart];
 								deltaR = sqrt(deltaphi * deltaphi + deltaeta * deltaeta);
 								if (deltaR<0.4){
-									pT += GenPart_pt[NumPart];
+									pT += GenPart_pt[NumPart]; //if particle and lepton from same vertex take particles transverse momentum 
 								}
                 					}
        						 }
-					I_rel = (pT)/Electron_pt[Electron_number];
-					if (I_rel < 0.15 && Electron_pt[Electron_number] >20){
-                                        	if (Di_elec ==-10) Di_elec = Electron_number;
-                                        	else second_elec = Electron_number;
+					I_rel = (pT)/Electron_pt[Electron_number]; //Calculate I_rel
+					if (I_rel < 0.15 && Electron_pt[Electron_number] >20){ //Requirments for Electron 
+                                        	if (Di_elec ==-10) Di_elec = Electron_number; //records the placments in the array of the first electron of intreset 
+                                        	else second_elec = Electron_number;  //records the placments in the array of the second electron of intreset
+						//Records infomation of cuurent electron of interest 
                                         	Lep_pt += Electron_pt[Electron_number];
                                         	Elec_charge[Electron_number] =Electron_charge[Electron_number];
                                         	Elec_pt[Electron_number] = Electron_pt[Electron_number];
@@ -106,13 +107,13 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
                                         	pt_misselecx = Electron_pt[Electron_number]*cos(Electron_phi[Electron_number]);
                                         	pt_misselecy = Electron_pt[Electron_number]*sin(Electron_phi[Electron_number]);
 					}
-					Electron_number += 1;
+					Electron_number += 1; 
 				}
 			}
 		}
 
 		for (Long64_t Jet =0;Jet<nJet;++Jet) {
-                        if (Jet_nMuons[Jet] > 0) {                   //Muon conditons 
+                        if (Jet_nMuons[Jet] > 0) {                   //Muon conditons same process as for electron but with different conditions 
                                 float I_rel = 0;
                                 float pT = 0;
                                 for (Long64_t i=0;i<Jet_nMuons[Jet];++i) {
@@ -152,7 +153,7 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 		Long64_t Pos_Lead_Elec = 0;
 		Long64_t Neg_Lead_Elec = 0;
 		Long64_t Pos_Sub_Elec = 0;                          //Identifying leading and subleading leptons
-		Long64_t Neg_Sub_Elec = 0;
+		Long64_t Neg_Sub_Elec = 0;  			    //Differentiating between, generation and subleading or leading  
 		Long64_t Pos_Lead_Muon = 0;
                 Long64_t Neg_Lead_Muon = 0;
                 Long64_t Pos_Sub_Muon = 0;
@@ -176,13 +177,14 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 		if (Di_muon != -10 && second_muon != -10) Invariant_mass = sqrt(2*Muon_pt[Di_muon]*Muon_pt[second_muon]*(cosh(Muon_eta[Di_muon]-Muon_eta[second_muon]) - cos(Muon_phi[Di_muon]
                         -Muon_phi[second_muon])));	
 	
-		//Different combinations of dileptons 
+		//Different allowed combinations of dileptons 
 
 		if ((Pos_Lead_Elec==1 && Neg_Lead_Muon==1) or (Neg_Lead_Elec==1 && Pos_Lead_Muon==1) or (Pos_Lead_Elec==1 && Neg_Sub_Muon==1) or 
 			(Neg_Lead_Elec==1 && Pos_Sub_Muon==1) or (Pos_Sub_Elec==1 && Neg_Lead_Muon ==1) or (Neg_Sub_Elec==1 && Pos_Lead_Muon==1) or (Pos_Lead_Elec==1 && Neg_Lead_Elec==1) 
 			or (Pos_Lead_Elec==1 && Neg_Sub_Elec==1) or (Pos_Sub_Elec==1 && Neg_Lead_Elec==1) or (Pos_Lead_Muon==1 && Neg_Lead_Muon==1)   
                         or (Pos_Lead_Muon==1 && Neg_Sub_Muon==1) or (Pos_Sub_Muon==1 && Neg_Lead_Muon==1)){
 			if (Pos_Lead_Elec + Neg_Lead_Elec + Pos_Sub_Elec + Neg_Sub_Elec+ Pos_Lead_Muon + Neg_Lead_Muon + Pos_Sub_Muon + Neg_Sub_Muon == 2) { 
+					//Calculatign missing transverse momentum 
 					for (Long64_t l =0;l<nJet;++l) { 
 						pt_missjetx += Jet_pt[l]*cos(Jet_phi[l]);
                                 		pt_missjety += Jet_pt[l]*sin(Jet_phi[l]);
@@ -190,10 +192,10 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 				pt_missx = pow(pt_missjetx +pt_misselecx + pt_missmuonx,2);
 				pt_missy = pow(pt_missjety +pt_misselecy + pt_missmuony,2);
 				pt_miss = sqrt(pt_missx+pt_missy);
-				if (nJet>=4){
+				if (nJet>=4){ //requiered number of jets 
 					for (Long64_t NumJet= 0;NumJet<nJet;++NumJet) {
 						H_t += Jet_pt[NumJet];   //Total Jet Transverse Momentum 
-						counter = counter + 1;  
+						counter = counter + 1;  //Placement holder for cross-event arrays 
 						Btag[counter] = Jet_btagCSVV2[NumJet];  //Change b-tagger here 
 						//Btag2[counter] = Jet_btagCMVA[NumJet];
 						if (abs(Jet_eta[NumJet])<2.5 && Jet_pt[NumJet] > 30) {
@@ -211,7 +213,6 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
 					//Find top 3 discriminant values and set them to the last three values in the array
 					for(Long64_t i = 0;i < 40; ++i)    {
-						//cout<<Discrim[i]<<"    ";
 						if(Discrim[39] < Discrim[i]) Discrim[39] = Discrim[i];
     					}
 					repeat = 0;

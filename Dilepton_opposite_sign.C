@@ -1,7 +1,7 @@
 /*
 This code produces histogras for the dilepton channel.
 The tree uploaded can be changed and corrsponfs to different 'Events' files.
-The pre-selection criteria ans can chnaged.
+The pre-selection criteria ans can changed.
 To run upload to root, create an Events object (e.g. type 'Events t'), the loop over the object (type t.Loop() ).
 */
 #define Events_cxx
